@@ -1,0 +1,79 @@
+.register_form {
+  font-size: 25px;
+  font-family: sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 450px;
+  max-width: 100%;
+  margin: 0 auto;
+  height: 100vh;
+  justify-content: center;
+
+  &_login_render {
+    font-size: 16px;
+    margin-top: 15px;
+  }
+
+  &_main_block {
+    width: 450px;
+    max-width: 100%;
+    position: relative;
+  }
+}
+
+.inputField {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  font-size: 1rem;
+  color: #1f2937;
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  outline: none;
+  transition: all 0.2s ease-in-out;
+  box-sizing: border-box;
+  margin-bottom: 15px;
+
+  &:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  }
+
+  &::placeholder {
+    color: #9ca3af;
+  }
+}
+
+.submitButton {
+  width: 100%;
+  padding: 0.75rem 1.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+  background-color: #2563eb;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  outline: none;
+
+  &:hover {
+    background-color: #1d4ed8;
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &:focus-visible {
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.4);
+  }
+
+  &:disabled {
+    background-color: #9ca3af;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
