@@ -5,21 +5,25 @@ import {Link, useNavigate} from "react-router-dom";
 import {SIGN_UP_STATE} from "../../../constants/constant.ts";
 import {useValidation} from "../../../hooks/useValidation.ts";
 import {useEffect, useState} from "react";
-import {ApiRegister} from "../../../services/server.ts";
+
 import {EyeIcon} from "../../../components/ui/EyeSvg.tsx";
+import {fetchRequest} from "../../../services/fetch-request-server.ts";
+import {useApiRequest} from "../../../hooks/useApiRequest.ts";
 
 export default function Register() {
     const useFormHook = useForm(SIGN_UP_STATE);
     const useValidationForm = useValidation();
+    const api = useApiRequest()
     const navigate = useNavigate();
     const [isShow, setIsShow] = useState<boolean>(false);
-    const handleSubmit = async (e:React.SubmitEvent<HTMLFormElement>) => {
+
+    const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault()
 
         const formData = new FormData(e.currentTarget);
         const formValue = Object.fromEntries(formData.entries());
 
-        const sendRequest = await ApiRegister(formValue)
+        const sendRequest = await fetchRequest(() => api.ApiRegister(formValue))
         if (!sendRequest || sendRequest.errorMessage) return
         navigate('/auth/login')
     }

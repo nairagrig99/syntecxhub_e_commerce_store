@@ -59,6 +59,7 @@ $transition-smooth: all 0.3s ease;
         font-weight: 600;
         color: $color-text-heading;
         margin: 0;
+        text-transform: capitalize;
       }
 
       .product_price {
@@ -82,9 +83,14 @@ $transition-smooth: all 0.3s ease;
   align-items: center;
   justify-content: center;
   gap: 45px;
-  flex-wrap: wrap;
   padding: 45px;
-  
+  font-family: sans-serif;
+
+  @media screen and (max-width: 768px) {
+    flex-wrap: wrap;
+    padding: 10px;
+  }
+
   &_add_product {
     width: fit-content;
     justify-content: center;
@@ -96,5 +102,39 @@ $transition-smooth: all 0.3s ease;
     background: #1e909c;
     color: white;
     text-decoration: none;
+  }
+
+  .product_info {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    .product_name {
+      font-size: 25px;
+      font-weight: 700;
+      color: $color-text-heading;
+      margin: 0;
+      text-transform: capitalize;
+    }
+
+    .product_description {
+      font-size: 16px;
+      font-weight: 400;
+      color: $color-text-heading;
+      margin: 0;
+      text-transform: capitalize;
+    }
+
+    .product_price {
+      font-size: 16px;
+      font-weight: 700;
+      color: $color-accent-price;
+      margin: 0;
+    }
+  }
+
+  img {
+    width: 400px;
   }
 }

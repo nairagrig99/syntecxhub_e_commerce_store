@@ -4,7 +4,7 @@ const {decode} = require("jsonwebtoken");
 const verifyToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1]
-
+    console.log("token",token)
     if (!token) {
         return res.status(401).json({message: 'Access token missing'})
     }
@@ -18,6 +18,7 @@ const verifyToken = (req, res, next) => {
         }
         req.user = decoded;
         req.user.token = token
+
         next()
     })
 }

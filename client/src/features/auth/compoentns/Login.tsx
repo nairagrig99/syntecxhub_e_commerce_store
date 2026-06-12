@@ -3,15 +3,17 @@ import styles from './Register.module.scss';
 import useForm from "../../../hooks/useForm.ts";
 import {SIGN_IN_STATE} from "../../../constants/constant.ts";
 import {Link, useNavigate} from "react-router-dom";
-import {ApiLogin} from "../../../services/server.ts";
 import {useState} from "react";
 import {EyeIcon} from "../../../components/ui/EyeSvg.tsx";
 import useAuth from "../hooks/useAuth.ts";
 import {ActionEnum} from "../../../enums/action-enum.ts";
+import {fetchRequest} from "../../../services/fetch-request-server.ts";
+import {useApiRequest} from "../../../hooks/useApiRequest.ts";
 
 export default function Login() {
     const useFormHook = useForm(SIGN_IN_STATE);
-    const {dispatch} = useAuth()
+    const {dispatch} = useAuth();
+    const api = useApiRequest();
     const navigate = useNavigate()
     const [isShow, setIsShow] = useState<boolean>(false);
     const [error, setError] = useState<string>('')
@@ -19,10 +21,10 @@ export default function Login() {
         event.preventDefault()
         const {email, password} = event.target;
 
-        const request = await ApiLogin({
+        const request = await fetchRequest(() => api.ApiLogin({
             email: email.value,
             password: password.value
-        });
+        }));
 
         if (!request || request.errorMessage) {
             setError(request.errorMessage.message)

@@ -1,0 +1,14 @@
+.navbar{
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  font-size: 18px;
+  font-family: monospace;
+  cursor: pointer;
+  a {
+    color: black;
+  }
+  a:hover {
+    color: green;
+  }
+}

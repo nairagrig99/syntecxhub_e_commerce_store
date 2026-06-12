@@ -1,5 +1,5 @@
 import type {RegisterFormType} from "../interface/register-form-itype.ts";
-
+export const API_BASE_URL = 'http://localhost:5000';
 export const SIGN_UP_STATE: RegisterFormType[] = [
     {type: "text", placeholder: 'First Name', name: {first_name: ""}},
     {type: "text", placeholder: 'Last Name', name: {last_name: ""}},

@@ -13,16 +13,27 @@ const jwt = require('jsonwebtoken')
 dotenv.config();
 const bcrypt = require('bcryptjs')
 dns.setServers(['8.8.8.8', '8.8.4.4']);
-app.use(cors())
+app.use(cors());
+
 const ENV_URL = process.env.MONGO_URI;
+
 const PORT = 5000;
+
 const verifyToken = require('./middlewares/authMiddleware')
+
+const multer = require("multer");
+
+const path = require('path');
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 mongoose.connect(ENV_URL)
     .then(() => console.log("Successfully connected to MongoDB Database"))
     .catch(() => console.log('Mongodb Database is FAILED'))
+
 app.get('/', (req, res) => {
     res.send('Server E-Comerece')
 })
+
 app.post('/register', async (req, res) => {
     try {
         const {first_name, last_name, email, password, re_password} = req.body
@@ -98,17 +109,16 @@ app.post('/login', async (req, res) => {
 app.get('/products', verifyToken, async (req, res) => {
     try {
         const products = await Products.find({});
-        console.log("products", products)
         res.status(200).json(products)
     } catch (e) {
         res.status(500).json({message: "Server Error: Could not get products"});
     }
 })
 
+
 app.get('/products/:id', verifyToken, async (req, res) => {
     try {
         const product = await Products.findById(req.params.id);
-        console.log("product", product)
         if (product) {
             res.status(200).json({product});
         } else {
@@ -118,26 +128,38 @@ app.get('/products/:id', verifyToken, async (req, res) => {
         res.status(500).json({message: "Invalid Product ID format"});
     }
 })
-// create product
-app.post('/products', async (req, res) => {
-        const {title, description, price, image, category, brand, countInStock, user} = req.body;
 
-        if (!title || !price || !description
-            || !image
-            || !countInStock) {
+const upload = multer({dest: 'uploads/'});
+app.post('/upload', upload.single('image'), async (req, res) => {
+    console.log("req", req)
+})
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+console.log('__dirname', __dirname);
+// create product
+app.post('/products', upload.single('image'), async (req, res) => {
+        console.log("upload", upload)
+        if (!req.body) {
+            return res.status(400).json({message: "Form data text fields were not received correctly."});
+        }
+        console.log("req.file.filename", req.file)
+
+        const {title, description, price, countInStock, user} = req.body;
+
+        if (!title || !price || !description || !countInStock) {
             return res.status(400).json({message: 'Please include all required fields'})
         }
+
         try {
             const newProduct = await Products.create({
                 user,
-                title,
-                description,
-                price,
-                image,
-                category,
-                brand,
-                countInStock: countInStock || 0
+                title: req.body.title,
+                description: req.body.description,
+                price: Number(req.body.price),
+                countInStock: Number(req.body.countInStock),
+                image: `/uploads/${req.file.filename}`
             })
+            console.log("newProduct", newProduct)
             res.status(201).json(newProduct);
         } catch (error) {
             res.status(500).json({message: "Server Error: Could not create product", error: error.message});
@@ -170,37 +192,61 @@ app.patch('/products/:id', verifyToken, async (req, res) => {
     }
 })
 app.delete('/product/:id', verifyToken, async (req, res) => {
-    const product = Products.findById(req.params.id);
     try {
-        if (product) {
-            const removedProduct = product.deleteOne();
-            res.status(200).json(removedProduct)
-        } else {
-            res.status(404).json({message: "Product not found"});
+        const deletedProduct = await Products.findByIdAndDelete(req.params.id);
+
+        if (!deletedProduct) {
+            return res.status(404).json({message: "Product not found"});
         }
+
+        res.status(200).json({message: "Product deleted", deletedProduct});
     } catch (error) {
-        res.status(500).json({message: "Server Error: Could not update product", error: error.message});
+        res.status(500).json({message: "Server error", error: error.message});
     }
 })
 
 app.post('/cart', verifyToken, async (req, res) => {
-    const {user, items} = req.body;
-    try {
-        const cart = await Cart.findOneAndUpdate(
-            {user},
-            {items},
-            {new: true, upsert: true}
-        )
+    const {_id: productId, title, price, image} = req.body;
 
-        res.status(200).json(cart)
-    } catch (error) {
-        res.status(500).json({message: "Failed to update cart", error: error.message})
+    const userId = req.user.id;
+
+    if (!productId) {
+        return res.status(400).json({message: "Product ID missing from request body"});
     }
-})
+
+    try {
+        let cart = await Cart.findOne({user: userId});
+        if (!cart) {
+            cart = new Cart({user: userId, items: []});
+        }
+
+        const itemIndex = cart.items.findIndex(item => item.product.toString() === productId);
+
+        if (itemIndex > -1) {
+
+            cart.items[itemIndex].qty += 1;
+        } else {
+            cart.items.push({
+                product: productId,
+                title,
+                qty: 1,
+                price,
+                image
+            });
+        }
+
+
+        await cart.save();
+        res.status(200).json(cart);
+    } catch (error) {
+        res.status(500).json({message: "Failed to update cart", error: error.message});
+    }
+});
 
 app.get('/cart', verifyToken, async (req, res) => {
     try {
-        const cart = await Cart.findOne({user: req.params.userId});
+        const cart = await Cart.findOne({user: req.user.id});
+
         if (cart) {
             res.status(200).json(cart);
         } else {
@@ -210,6 +256,55 @@ app.get('/cart', verifyToken, async (req, res) => {
         res.status(500).json({message: "Failed to fetch cart", error: error.message});
     }
 });
+
+app.patch('/cart', verifyToken, async (req, res) => {
+    try {
+        const userID = req.user.id;
+        const {productID, qty} = req.body;
+
+        const userCart = await Cart.findOne({user: userID});
+
+        if (!userCart) {
+            return res.status(404).json({message: 'User does not exist'})
+        }
+
+        const cart = userCart.items.find((cart) => cart.product.toString() === productID);
+
+        if (!cart) {
+            return res.status(404).json({message: 'Cart does not exist'});
+        }
+
+        cart.qty = qty;
+
+        await userCart.save()
+        res.status(200).json({cart})
+    } catch (e) {
+        res.status(400).json({message: 'failed to update cart quantity', error: e})
+    }
+})
+
+app.delete('/cart/:id', verifyToken, async (req, res) => {
+    try {
+        const userID = req.user.id;
+        const productID = req.params.id
+        const cart = await Cart.findOne({user: userID});
+        const findCart = cart.items.find((cart) => cart.product.toString() === productID);
+
+        if (!findCart) {
+            res.status(400).json({message: 'Cart did not found'})
+        }
+
+        cart.items = cart.items.filter((cart) => cart.product.toString() !== productID);
+
+        cart.save()
+        return res.status(200).json({
+            message: 'Item removed from cart successfully',
+            items: cart.items
+        });
+    } catch (e) {
+        res.status(400).json({message: 'failed to delete cart ', error: e})
+    }
+})
 
 // checkout
 
@@ -257,12 +352,15 @@ app.get('/users', async (req, res) => {
 app.get('/auth/me', verifyToken, async (req, res) => {
     try {
         const user = await User.findById(req.user.id).select('-password');
+        console.log("user", user);
         if (!user) return res.status(404).json({message: "User not found"});
         res.status(200).json({user: user, token: req.user.token});
     } catch (error) {
         res.status(500).json({message: "Server error"});
     }
 });
+
+
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`)
 })
