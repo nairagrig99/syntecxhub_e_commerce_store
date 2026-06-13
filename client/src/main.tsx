@@ -8,10 +8,15 @@ import Register from "./features/auth/compoentns/Register.tsx";
 import AuthPage from "./pages/Login.tsx";
 import ProtectedRoute from "./utils/protect-route.tsx";
 import Login from "./features/auth/compoentns/Login.tsx";
-import AuthProvider from "./store/AuthProvider.tsx";
+import AuthProvider from "./store/auth/AuthProvider.tsx";
 import CartPage from "./pages/CartPage.tsx";
 import ProductDetail from "./pages/ProductDetail.tsx";
-import ProductGrid from "./features/cart/ProductGrid.tsx";
+import ProductGrid from "./features/cart/product/ProductGrid.tsx";
+import ErrorPage from "./components/ui/ErrorPage.tsx";
+import AdminProductPage from "./features/admin/page/AdminProductPage.tsx";
+import AdminOrderPage from "./features/admin/page/AdminOrderPage.tsx";
+import AdminUserPage from "./features/admin/page/AdminUserPage.tsx";
+import ProductProvider from "./store/product/ProductProvider.tsx";
 
 const routes = createBrowserRouter([
     {
@@ -20,10 +25,20 @@ const routes = createBrowserRouter([
             <HomePage/>
         </ProtectedRoute>,
         children: [
-
-            {path: '/products', element: <ProductGrid/>},
+            {index: true, element: <ProductGrid/>},
             {path: '/products/:id', element: <ProductDetail/>},
             {path: '/cart', element: <CartPage/>},
+            {
+                path: "/admin",
+                element: <ProtectedRoute allowedRole={['admin']}>
+                    <Dashboard/>
+                </ProtectedRoute>,
+                children: [
+                    {index: true, element: <AdminProductPage/>},
+                    {path: '/admin/order', element: <AdminOrderPage/>},
+                    {path: '/admin/user', element: <AdminUserPage/>}
+                ]
+            }
         ]
     },
     {
@@ -36,8 +51,8 @@ const routes = createBrowserRouter([
         ]
     },
     {
-        path: "/admin",
-        element: <Dashboard/>
+        path: '*',
+        element: <ErrorPage/>
     }
 ])
 
@@ -45,7 +60,9 @@ const routes = createBrowserRouter([
 createRoot(document.getElementById('root')!).render(
     <StrictMode>
         <AuthProvider>
-            <RouterProvider router={routes}/>
+            <ProductProvider>
+                <RouterProvider router={routes}/>
+            </ProductProvider>
         </AuthProvider>
     </StrictMode>,
 )

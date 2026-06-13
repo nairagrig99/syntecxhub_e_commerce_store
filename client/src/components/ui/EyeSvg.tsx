@@ -1,6 +1,7 @@
+import type {IconProps} from "../../interface/icon-props.ts";
 
 
-export function EyeIcon({className = "w-6 h-6",onClick}) {
+export function EyeIcon({className = "w-6 h-6",onClick}:IconProps) {
     return (
         <svg
             onClick={onClick}

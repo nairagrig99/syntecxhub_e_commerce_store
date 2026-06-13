@@ -5,8 +5,8 @@ export interface IProduct {
     image: string;
     price: number;
     countInStock: number;
-    rating: number;
-    numReviews: number;
+    rating?: number;
+    numReviews?: number;
     createdAt?: string;
     updatedAt?: string;
 }

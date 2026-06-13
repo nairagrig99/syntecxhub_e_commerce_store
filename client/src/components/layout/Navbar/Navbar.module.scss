@@ -9,6 +9,9 @@
   top: 0;
   z-index: 1000;
   font-family: sans-serif;
+  @media screen and (max-width: 600px) {
+    flex-wrap: wrap;
+  }
 }
 
 .logo a {

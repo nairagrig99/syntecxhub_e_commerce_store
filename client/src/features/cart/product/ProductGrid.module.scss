@@ -1,0 +1,140 @@
+$color-bg-main: #f9f9f9;
+$color-bg-card: #ffffff;
+$color-bg-img: #f0f0f0;
+$color-text-heading: #2d3748;
+$color-accent-price: #4f46e5;
+$shadow-sm: 0 4px 10px rgba(0, 0, 0, 0.05);
+$shadow-md: 0 10px 20px rgba(0, 0, 0, 0.1);
+$transition-smooth: all 0.3s ease;
+
+.product_grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 30px;
+  padding: 40px 5%;
+  background-color: $color-bg-main;
+
+  .product_card {
+    background: $color-bg-card;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: $shadow-sm;
+    transition: $transition-smooth;
+    display: flex;
+    flex-direction: column;
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: $shadow-md;
+      cursor: pointer;
+
+      .product_image_wrapper img {
+        transform: scale(1.05);
+      }
+    }
+
+    .product_image_wrapper {
+      width: 100%;
+      height: 280px;
+      overflow: hidden;
+      background-color: $color-bg-img;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+      }
+    }
+
+
+    .product_info {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+
+      .product_name {
+        font-size: 18px;
+        font-weight: 600;
+        color: $color-text-heading;
+        margin: 0;
+        text-transform: capitalize;
+      }
+
+      .product_price {
+        font-size: 16px;
+        font-weight: 700;
+        color: $color-accent-price;
+        margin: 0;
+      }
+    }
+
+    img {
+      height: 335px;
+      width: 100%;
+      max-width: 100%;
+    }
+  }
+}
+
+.product_flex {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 45px;
+  padding: 45px;
+  font-family: sans-serif;
+
+  @media screen and (max-width: 768px) {
+    flex-wrap: wrap;
+    padding: 10px;
+  }
+
+  &_add_product {
+    width: fit-content;
+    justify-content: center;
+    display: flex;
+    margin: 8px auto;
+    height: fit-content;
+    border: none;
+    padding: 12px 18px;
+    background: #1e909c;
+    color: white;
+    text-decoration: none;
+  }
+
+  .product_info {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    .product_name {
+      font-size: 25px;
+      font-weight: 700;
+      color: $color-text-heading;
+      margin: 0;
+      text-transform: capitalize;
+    }
+
+    .product_description {
+      font-size: 16px;
+      font-weight: 400;
+      color: $color-text-heading;
+      margin: 0;
+      text-transform: capitalize;
+    }
+
+    .product_price {
+      font-size: 16px;
+      font-weight: 700;
+      color: $color-accent-price;
+      margin: 0;
+    }
+  }
+
+  img {
+    width: 400px;
+  }
+}
